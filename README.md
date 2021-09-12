@@ -49,8 +49,8 @@ This function is expected to be run on a mesh at origin.
 - **Mirror Plane** : The plane to mirror across.
 - **Mirror Direction** : Determines which side of the mirror plane will be chosen as the source.
 - **Weight Distribution Method** : How to distribute weights from hit locations. 
--- `Barycentric` uses a technique that distributes weights based on their relative distance to the vertices of the polygon they hit.
--- `Closest Vertex` distributes 100% of the source vertex's weights to the closest vertex on the hit polygon.
+- `Barycentric` uses a technique that distributes weights based on their relative distance to the vertices of the polygon they hit.
+- `Closest Vertex` distributes 100% of the source vertex's weights to the closest vertex on the hit polygon.
 - **Center Blend Width** : The width of the linear blend technique. You may need to adjust this depending on the scale of the mesh you are working on.
 
 Enjoy
