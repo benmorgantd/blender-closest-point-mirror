@@ -1,4 +1,5 @@
 # <pep8-80 compliant>
+# This product is presented as-is. Edit at your own risk.
 
 # Standard Python Imports
 import io
@@ -7,23 +8,6 @@ from contextlib import redirect_stdout
 # Blender Python Imports
 import bpy
 from mathutils import Matrix, Vector, geometry
-
-# Global Variables
-YZ_MIRROR_MATRIX = Matrix()
-YZ_MIRROR_MATRIX[0][0] = -1
-
-XZ_MIRROR_MATRIX = Matrix()
-XZ_MIRROR_MATRIX[1][1] = -1
-
-XY_MIRROR_MATRIX = Matrix()
-XY_MIRROR_MATRIX[2][2] = -1
-
-MIRROR_MATRICES = (YZ_MIRROR_MATRIX, XZ_MIRROR_MATRIX, XY_MIRROR_MATRIX)
-MIRROR_PLANE_NORMALS = (Vector((1, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1)))
-
-ORIGIN_VECTOR = Vector((0, 0, 0))
-INVERSE_VECTOR = Vector((-1, -1, -1))
-
 
 # Addon Info
 bl_info = {'name': 'Mirror Weights Closest Point',
@@ -36,6 +20,38 @@ bl_info = {'name': 'Mirror Weights Closest Point',
            'category': 'Rigging',
            'location': 'Properties > Object Data Properties > Vertex Group Specials',
            }
+
+
+#######################################
+# Public Global Variables (Okay to edit. Re-install add-on after editing.)
+DEFAULT_LEFT_PATTERN = '.l'
+DEFAULT_RIGHT_PATTERN = '.r'
+# This pattern can be '' if you want to use no identifier for center bones
+DEFAULT_CENTER_PATTERN = '.c'
+# This width is in meters, so 5cm
+DEFAULT_CENTER_BLEND_WIDTH = 0.05
+# 0 is YZ, 1 is XZ, 2 is XY
+DEFAULT_MIRROR_PLANE_INDEX = 0
+# 0 is + to -, 1 is - to +
+DEFAULT_MIRROR_DIRECTION_INDEX = 0
+
+#######################################
+
+# Private Global Variables (Do not edit)
+_YZ_MIRROR_MATRIX = Matrix()
+_YZ_MIRROR_MATRIX[0][0] = -1
+
+_XZ_MIRROR_MATRIX = Matrix()
+_XZ_MIRROR_MATRIX[1][1] = -1
+
+_XY_MIRROR_MATRIX = Matrix()
+_XY_MIRROR_MATRIX[2][2] = -1
+
+_MIRROR_MATRICES = (_YZ_MIRROR_MATRIX, _XZ_MIRROR_MATRIX, _XY_MIRROR_MATRIX)
+_MIRROR_PLANE_NORMALS = (Vector((1, 0, 0)), Vector((0, 1, 0)), Vector((0, 0, 1)))
+
+_ORIGIN_VECTOR = Vector((0, 0, 0))
+_INVERSE_VECTOR = Vector((-1, -1, -1))
 
 
 def _mirror_vertex_groups(source_mesh,
@@ -69,9 +85,9 @@ def _mirror_vertex_groups(source_mesh,
     """
 
     # The matrix transformation to use when mirroring the duplicate source mesh
-    mirror_matrix = MIRROR_MATRICES[mirror_plane_index]
+    mirror_matrix = _MIRROR_MATRICES[mirror_plane_index]
     # The normal of the mirror plane. Used on center-sided bones.
-    mirror_plane_normal = MIRROR_PLANE_NORMALS[mirror_plane_index]
+    mirror_plane_normal = _MIRROR_PLANE_NORMALS[mirror_plane_index]
     # The mix mode for the data transfer is REPLACE on left/right bones and ADD on center bones.
     data_transfer_mix_mode = 'REPLACE'
     # Used to determine if an existing mirror-sided vertex group exists on left/right bones.
@@ -85,7 +101,7 @@ def _mirror_vertex_groups(source_mesh,
             # Mirror right to left or negative to positive
             replace_key = (right_key, left_key)
             # Invert the mirror plane normal
-            mirror_plane_normal *= INVERSE_VECTOR
+            mirror_plane_normal *= _INVERSE_VECTOR
 
         source_group = source_mesh.vertex_groups[source_group_name]
 
@@ -106,7 +122,7 @@ def _mirror_vertex_groups(source_mesh,
                         # Get the distance from this vertex to the mirror plane. This can be negative if it is opposite
                         # the given plane's normal.
                         distance_to_mirror_plane = geometry.distance_point_to_plane(vertex_world_position,
-                                                                                    ORIGIN_VECTOR,
+                                                                                    _ORIGIN_VECTOR,
                                                                                     mirror_plane_normal)
 
                         if distance_to_mirror_plane < -center_blend_width:
@@ -175,22 +191,22 @@ class MirrorVertexGroupsClosestPointProperties(bpy.types.PropertyGroup):
     """Holds the properties for closest point mirror operations"""
 
     left_pattern: bpy.props.StringProperty(name='Left Pattern',
-                                           default='.l',
+                                           default=DEFAULT_LEFT_PATTERN,
                                            description='The pattern to use for identifying left bones',
                                            )
 
     right_pattern: bpy.props.StringProperty(name='Right Pattern',
-                                            default='.r',
+                                            default=DEFAULT_RIGHT_PATTERN,
                                             description='The pattern to use for identifying right bones',
                                             )
 
     center_pattern: bpy.props.StringProperty(name='Center Pattern',
-                                             default='.c',
+                                             default=DEFAULT_CENTER_PATTERN,
                                              description='The pattern to use for identifying center bones',
                                              )
 
     mirror_plane: bpy.props.EnumProperty(name='Mirror Plane',
-                                         default=0,
+                                         default=DEFAULT_MIRROR_PLANE_INDEX,
                                          description='The plane to mirror weights across',
                                          items=[('0', 'YZ', 'Mirror across the YZ plane'),
                                                 ('1', 'XZ', 'Mirror across to XZ plane'),
@@ -198,7 +214,7 @@ class MirrorVertexGroupsClosestPointProperties(bpy.types.PropertyGroup):
                                          )
 
     mirror_direction: bpy.props.EnumProperty(name='Mirror Direction',
-                                             default=0,
+                                             default=DEFAULT_MIRROR_DIRECTION_INDEX,
                                              description='The direction to mirror across',
                                              items=[('0', '+ -', 'Mirror positive to negative'),
                                                     ('1', '- +', 'Mirror negative to positive')],
@@ -219,7 +235,7 @@ class MirrorVertexGroupsClosestPointProperties(bpy.types.PropertyGroup):
                                                        )
 
     center_blend_width: bpy.props.FloatProperty(name='Center Blend Width',
-                                                default=0.05,
+                                                default=DEFAULT_CENTER_BLEND_WIDTH,
                                                 description='The distance (in cm) used for the linear blend of weights '
                                                             'near the mirror plane on center-sided bones.')
 
