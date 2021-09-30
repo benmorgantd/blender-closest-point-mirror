@@ -14,9 +14,9 @@ bl_info = {'name': 'Mirror Weights Closest Point',
            'blender': (2, 90, 3),
            'author': 'Ben Morgan',
            'description': 'A set of operators to mirror weights based on a closest point search.',
-           'version': (0, 0, 3),
-           'doc_url': 'https://github.com/benmorgantd/blender-closest-point-mirror#readme',
-           'tracker_url': 'https://github.com/benmorgantd/blender-closest-point-mirror',
+           'version': (0, 0, 4),
+           'doc_url': 'https://github.com/benmorgantd/blender-closest-point-mirror/blob/main/README.md',
+           'tracker_url': 'https://github.com/benmorgantd/blender-closest-point-mirror/issues/new',
            'category': 'Rigging',
            'location': 'Properties > Object Data Properties > Vertex Group Specials',
            }
@@ -82,7 +82,6 @@ def _mirror_vertex_groups(source_mesh,
         Pairs with the vert_mapping options in bpy.ops.object.data_transfer
     :param float center_blend_width: The width to use for blending values away from the mirror plane on center bones.
     :return: None
-
     """
 
     # The matrix transformation to use when mirroring the duplicate source mesh
